@@ -1,40 +1,36 @@
 import java.util.Scanner;
 
-public class Battle {
-    public static void print_field(boolean[][] matrix){
-        for (byte i = 0; i < matrix.length; i++){
-            System.out.print(" --");
+public class Battle { //extends Application{
+    public static void sleep(int milliseconds){
+        try{
+            Thread.sleep(milliseconds);
         }
-        System.out.println();
-        for (byte i=0; i<matrix.length; i++){
-            System.out.print("|");
-            for(byte j=0; j<matrix.length; j++){
-                if (matrix[j][i])
-                    System.out.print("██");
-                else
-                    System.out.print("  ");
-                if (j!= matrix.length-1)
-                    System.out.print(" ");
-            }
-            System.out.println("|");
-        }
-        for (byte i=0; i<matrix.length; i++)
-            System.out.print(" --");
-        System.out.println();
+        catch (InterruptedException e){e.printStackTrace();}
     }
-    public static void main(String[] a) {
+
+    public static void clear_console(){
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
+    public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        System.out.print("Grid size: ");
-        int len = input.nextInt();
-        boolean[][] field = new boolean[len][len];
-        for (byte i = 0; i<len; i++)
-            for (byte j = 0; j<len; j++)
-                field[j][i] = false;
-        int num_ships = (int) (len/2);
-        for (byte i = 0; i<num_ships; i++){
-            int num = (int) (Math.random()*5+1);
-            Ship n = new Ship(field, num);
+
+        int[] ship_lengths = {2, 2, 3, 3, 4, 5};
+        int num_ships = ship_lengths.length;
+
+        boolean[][] field = new boolean[10][10];
+        Ship[] ships = new Ship[num_ships];
+        for (byte i = 0; i < num_ships; i++){
+            ships[i] = new Ship(field, ship_lengths[i]);
         }
-        print_field(field);
+        Field computer_field = new Field(field);
+        computer_field.print();
+
+        // player field : 
+        // boat 1 (length 2) : - vertical ? - starting point ?, if too low or too far right, ask again
+
+        Field player_field = new Field(field);
+        player_field.print();
     }
 }
