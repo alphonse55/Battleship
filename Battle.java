@@ -1,13 +1,26 @@
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 public class Battle {
+    public static Scanner scanner = new Scanner(System.in);
+
+    // colors
+    public static String RESET = "\u001B[0m";
+    public static String RED = "\u001B[31m";
+    public static String GREEN = "\u001B[32m";
+
+    // constants
+    public static int[] ship_lengths = {2, 3, 3, 4, 5};
+    public static String[] ship_names = {"Patrol Boat", "Submarine", "Destroyer", "Battleship", "Carrier"};
+    public static int num_ships = ship_lengths.length;
+    public static int grid_size = 10;
 
     public static void sleep(int milliseconds){
         try{
             Thread.sleep(milliseconds);
         }
-        catch (InterruptedException e){e.printStackTrace();}
+        catch (InterruptedException e){
+            e.printStackTrace();
+        }
     }
 
     public static void clear_console(){
@@ -15,44 +28,36 @@ public class Battle {
         System.out.flush();
     }
 
+    // "C3" -> [2, 2] 
     public static int[] convert_position(String position){
         int x = "ABCDEFGHIJ".indexOf(position.charAt(0));
-        int y;
-        if (position.length() == 2){
-            y = Integer.parseInt(String.valueOf(position.charAt(1))) - 1;
-        }else{
+        int y = Integer.parseInt(String.valueOf(position.charAt(1))) - 1;
+        if (position.length() == 3){
             y = 9;
         }
         int[] a = {x, y};
         return a;
     }
 
+    // [2, 2] -> "C3"
     public static String convert_position(int[] position){
         String letter = String.valueOf("ABCDEFGHIJ".charAt(position[0]));
         String number = String.valueOf(position[1] + 1);
         return letter + number;
     }
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-
-        int[] ship_lengths = {2, 3, 3, 4, 5};
-        String[] ship_names = {"Patrol Boat", "Submarine", "Destroyer", "Battleship", "Carrier"};
-        int num_ships = ship_lengths.length;
-        Ship[] ships = new Ship[num_ships];
-
-        int grid_size = 10;
-
-        // computer field
-        boolean[][] field = new boolean[grid_size][grid_size];
+    // generate computer field
+    public static Field computer_field(){
+        boolean[][] computer_grid = new boolean[grid_size][grid_size];
         for (int j = 0; j < grid_size; j++){
             for (int i = 0; i < grid_size; i++){
-                field[j][i] = false;
+                computer_grid[j][i] = false;
             }
         }
 
-        for (int s = 0; s < num_ships; s++){
+        Ship[] ships = new Ship[num_ships];
 
+        for (int s = 0; s < num_ships; s++){
             int x = -1;
             int y = -1;
             int orientation = 0;
@@ -66,7 +71,7 @@ public class Battle {
                     
                     ship_done = true;
                     for (int i = x; i < x + ship_lengths[s]; i++){
-                        if (field[y][i]){
+                        if (computer_grid[y][i]){
                             ship_done = false;
                         }
                     }
@@ -77,30 +82,33 @@ public class Battle {
 
                     ship_done = true;
                     for (int i = y; i < y + ship_lengths[s]; i++){
-                        if (field[i][x]){
+                        if (computer_grid[i][x]){
                             ship_done = false;
                         }
                     }
                 }
             }
 
-            ships[s] = new Ship(field, ship_lengths[s], x, y, orientation, ship_names[s]);
+            ships[s] = new Ship(computer_grid, ship_lengths[s], x, y, orientation, ship_names[s]);
         }
-        Field computer_field = new Field(field);
+        return new Field(computer_grid);
+    }
 
-        // player field
+    // generate player field
+    public static Field player_field(){
+        boolean[][] player_grid = new boolean[grid_size][grid_size];
         for (int j = 0; j < grid_size; j++){
             for (int i = 0; i < grid_size; i++){
-                field[j][i] = false;
+                player_grid[j][i] = false;
             }
         }
-
-        Field player_field = new Field(field);
-
-        ships = new Ship[num_ships];
+        Ship[] ships = new Ship[num_ships];
 
         for (int s = 0; s < num_ships; s++){
-            System.out.println(ship_names[s] + " (length = " + ship_lengths[s] + ") : ");
+            System.out.println();
+            new Field(player_grid).print();
+
+            System.out.println("\n" + ship_names[s] + " (length = " + ship_lengths[s] + ") : ");
 
             int x = -1;
             int y = -1;
@@ -130,7 +138,7 @@ public class Battle {
                 String position = "";
                 scanner.nextLine();
                 while (true){
-                    System.out.print("Position (row letter - column number) ex.: A1, C6 : ");
+                    System.out.print("Position (row letter - column number) ex.: A1 : ");
                     try{
                         position = scanner.nextLine();
                     }
@@ -159,6 +167,7 @@ public class Battle {
                         System.out.println("Invalid input, try again.");
                     }
                 }
+
                 int[] position_array = convert_position(position);
                 x = position_array[0];
                 y = position_array[1];
@@ -171,7 +180,7 @@ public class Battle {
                     }
                     else{
                         for (int i = x; i < x + ship_lengths[s]; i++){
-                            if (field[y][i]){
+                            if (player_grid[y][i]){
                                 String ship_name = "ship";
                                 ship_done = false;
                                 int[] coordinates = {i, y};
@@ -194,7 +203,7 @@ public class Battle {
                     }
                     else{
                         for (int i = y; i < y + ship_lengths[s]; i++){
-                            if (field[i][x]){
+                            if (player_grid[i][x]){
                                 String ship_name = "ship";
                                 ship_done = false;
                                 int[] coordinates = {x, i};
@@ -211,12 +220,22 @@ public class Battle {
                     }
                 }
             }
-            ships[s] = new Ship(field, ship_lengths[s], x, y, orientation, ship_names[s]);
-
-            System.out.println();
-            player_field.print();
-            System.out.println();
+            ships[s] = new Ship(player_grid, ship_lengths[s], x, y, orientation, ship_names[s]);
         }
+        return new Field(player_grid);
+    }
+
+    public static void main(String[] args) {
+
+        Field computer_field = computer_field();
+
+        Field player_field = player_field();
+        player_field.print();
+        System.out.println();
+
+        System.out.println("\nAll boats placed. Let's start playing !");
+        sleep(2000);
+
         // GAME
 
         scanner.close();
