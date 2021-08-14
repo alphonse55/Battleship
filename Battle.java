@@ -26,24 +26,6 @@ public class Battle {
         int[] a = {x, y};
         return a;
     }
-    
-    public static boolean ship_around(int x, int y, boolean[][] mat){
-        if (y != 0)
-            if (mat[y-1][x])
-                return true;
-        if (y != mat.length-1)
-            if (mat[y+1][x])
-                return true;
-        if (x != 0)
-            if (mat[y][x-1])
-                return true;
-        if (x != mat.length-1)
-            if (mat[y][x+1])
-                return true;
-        if (mat[y][x])
-            return true;
-        return false;
-    }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -54,6 +36,8 @@ public class Battle {
         Ship[] ships = new Ship[num_ships];
 
         int grid_size = 10;
+
+        // computer field
         boolean[][] field = new boolean[grid_size][grid_size];
         for (int j = 0; j < grid_size; j++){
             for (int i = 0; i < grid_size; i++){
@@ -76,7 +60,7 @@ public class Battle {
                     
                     ship_done = true;
                     for (int i = x; i < x + ship_lengths[s]; i++){
-                        if (ship_around(i, y, field)){
+                        if (field[y][i]){
                             ship_done = false;
                         }
                     }
@@ -87,7 +71,7 @@ public class Battle {
 
                     ship_done = true;
                     for (int i = y; i < y + ship_lengths[s]; i++){
-                        if (ship_around(x, i, field)){
+                        if (field[i][x]){
                             ship_done = false;
                         }
                     }
@@ -99,9 +83,7 @@ public class Battle {
         Field computer_field = new Field(field);
         computer_field.print();
 
-        // player field : 
-        // boat 1 (length 2) : - vertical ? - starting point ?, if too low or too far right, ask again
-
+        // player field
         for (int j = 0; j < grid_size; j++){
             for (int i = 0; i < grid_size; i++){
                 field[j][i] = false;
@@ -165,10 +147,9 @@ public class Battle {
                     }
                     else{
                         for (int i = x; i < x + ship_lengths[s]; i++){
-                            if (ship_around(i, y, field)){
+                            if (field[y][i]){
                                 ship_done = false;
-                                System.out.println("Too close to other ships.");
-                                break;
+                                System.out.println("Overlapping");
                             }
                         }
                     }
@@ -180,10 +161,9 @@ public class Battle {
                     }
                     else{
                         for (int i = y; i < y + ship_lengths[s]; i++){
-                            if (ship_around(x, i, field)){
+                            if (field[i][x]){
                                 ship_done = false;
-                                System.out.println("Too close to other ships.");
-                                break;
+                                System.out.println("Overlapping");
                             }
                         }
                     }
