@@ -1,3 +1,4 @@
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Battle {
@@ -111,9 +112,18 @@ public class Battle {
                 orientation = -1;
                 while (true){
                     System.out.print("Orientation (x -> 0 / y -> 1) : ");
-                    orientation = scanner.nextInt();
+                    try{
+                        orientation = scanner.nextInt();
+                    }
+                    catch (InputMismatchException e){
+                        System.out.println("Invalid input, try again.");
+                        scanner.nextLine();
+                    }
                     if (orientation == 0 || orientation == 1){
                         break;
+                    }
+                    else{
+                        System.out.println("Invalid input, try again.");
                     }
                 }
                 // get position
@@ -121,7 +131,12 @@ public class Battle {
                 scanner.nextLine();
                 while (true){
                     System.out.print("Position (row letter - column number) ex.: A1, C6 : ");
-                    position = scanner.nextLine();
+                    try{
+                        position = scanner.nextLine();
+                    }
+                    catch (InputMismatchException e){
+                        System.out.println("Invalid input, try again.");
+                    }
                     if (("ABCDEFGHIJ".indexOf(position.charAt(0)) > -1) && ("123456789".indexOf(position.charAt(1)) > -1)){
                         if (position.length() == 2){
                             break;
@@ -130,10 +145,18 @@ public class Battle {
                             if (("123456789".indexOf(position.charAt(1)) == 0) && (String.valueOf(position.charAt(2)).equals("0"))){
                                 break;
                             }
+                            else{
+                                System.out.println("Invalid input, try again.");
+                                break;
+                            }
                         }
                         else{
                             System.out.println("Invalid input, try again.");
+                            break;
                         }
+                    }
+                    else{
+                        System.out.println("Invalid input, try again.");
                     }
                 }
                 int[] position_array = convert_position(position);
