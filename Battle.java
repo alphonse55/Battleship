@@ -15,8 +15,7 @@ public class Battle {
     }
 
     public static int[] convert_position(String position){
-        String letters = "ABCDEFGHIJ";
-        int x = letters.indexOf(position.charAt(0));
+        int x = "ABCDEFGHIJ".indexOf(position.charAt(0));
         int y;
         if (position.length() == 2){
             y = Integer.parseInt(String.valueOf(position.charAt(1))) - 1;
@@ -25,6 +24,12 @@ public class Battle {
         }
         int[] a = {x, y};
         return a;
+    }
+
+    public static String convert_position(int[] position){
+        String letter = String.valueOf("ABCDEFGHIJ".charAt(position[0]));
+        String number = String.valueOf(position[1] + 1);
+        return letter + number;
     }
 
     public static void main(String[] args) {
@@ -81,7 +86,6 @@ public class Battle {
             ships[s] = new Ship(field, ship_lengths[s], x, y, orientation, ship_names[s]);
         }
         Field computer_field = new Field(field);
-        computer_field.print();
 
         // player field
         for (int j = 0; j < grid_size; j++){
@@ -95,9 +99,6 @@ public class Battle {
         ships = new Ship[num_ships];
 
         for (int s = 0; s < num_ships; s++){
-            System.out.println();
-            player_field.print();
-            System.out.println();
             System.out.println(ship_names[s] + " (length = " + ship_lengths[s] + ") : ");
 
             int x = -1;
@@ -148,8 +149,17 @@ public class Battle {
                     else{
                         for (int i = x; i < x + ship_lengths[s]; i++){
                             if (field[y][i]){
+                                String ship_name = "ship";
                                 ship_done = false;
-                                System.out.println("Overlapping");
+                                int[] coordinates = {i, y};
+                                for (int ship = 0; ship < s; ship++){
+                                    for (int n_coord = 0; n_coord < ships[ship].length; n_coord++){
+                                        if (ships[ship].ship_coordinates[n_coord][0] == coordinates[0] && ships[ship].ship_coordinates[n_coord][1] == coordinates[1]){
+                                            ship_name = ships[ship].name;
+                                        }
+                                    }
+                                }
+                                System.out.println("Overlapping " + ship_name + " in " + convert_position(coordinates));
                             }
                         }
                     }
@@ -162,17 +172,29 @@ public class Battle {
                     else{
                         for (int i = y; i < y + ship_lengths[s]; i++){
                             if (field[i][x]){
+                                String ship_name = "ship";
                                 ship_done = false;
-                                System.out.println("Overlapping");
+                                int[] coordinates = {x, i};
+                                for (int ship = 0; ship < s; ship++){
+                                    for (int n_coord = 0; n_coord < ships[ship].length; n_coord++){
+                                        if (ships[ship].ship_coordinates[n_coord][0] == coordinates[0] && ships[ship].ship_coordinates[n_coord][1] == coordinates[1]){
+                                            ship_name = ships[ship].name;
+                                        }
+                                    }
+                                }
+                                System.out.println("Overlapping " + ship_name + " in " + convert_position(coordinates));
                             }
                         }
                     }
                 }
             }
             ships[s] = new Ship(field, ship_lengths[s], x, y, orientation, ship_names[s]);
-        }
 
-        player_field.print();
+            System.out.println();
+            player_field.print();
+            System.out.println();
+        }
+        // GAME
 
         scanner.close();
     }
