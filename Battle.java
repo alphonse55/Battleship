@@ -237,6 +237,17 @@ public class Battle {
         sleep(2000);
 
         // GAME
+        boolean game = true;
+        while (game){
+            System.out.println("\nComputer's grid : \n");
+            computer_field.print_marks();
+
+            System.out.print("\nTake a shot : ");
+            String input = scanner.nextLine();
+            int[] shot = convert_position(input);
+
+            computer_field.marks.add(shot);
+        }
 
         scanner.close();
     }
