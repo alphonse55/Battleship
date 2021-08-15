@@ -34,16 +34,20 @@ public class Battle {
     // "C3" -> [2, 2] 
     public static int[] convert_position(String position) throws IllegalArgumentException{
         boolean valid = false;
-        if (("ABCDEFGHIJ".indexOf(position.charAt(0)) > -1) && ("123456789".indexOf(position.charAt(1)) > -1)){
-            if (position.length() == 2){
-                valid = true;
-            }
-            else if (position.length() == 3){
-                if (("123456789".indexOf(position.charAt(1)) == 0) && (String.valueOf(position.charAt(2)).equals("0"))){
+
+        if (position.length() > 1){
+            if (("ABCDEFGHIJ".indexOf(position.charAt(0)) > -1) && ("123456789".indexOf(position.charAt(1)) > -1)){
+                if (position.length() == 2){
                     valid = true;
+                }
+                else if (position.length() == 3){
+                    if (("123456789".indexOf(position.charAt(1)) == 0) && (String.valueOf(position.charAt(2)).equals("0"))){
+                        valid = true;
+                    }
                 }
             }
         }
+
         if (!valid){
             throw new IllegalArgumentException("Exception thrown");
         }
@@ -233,108 +237,157 @@ public class Battle {
     }
 
     public static void main(String[] args) {
-        Field computer_field = computer_field();
-        Field player_field = player_field();
+        boolean run = true;
+        while (run){
+            // initializing fields
+            Field computer_field = computer_field();
 
-        System.out.print(GREEN + "All boats placed." + RESET + " Press ENTER to start playing.");
-        scanner.nextLine();
-        clear_console();
+            // for (int y = 0; y < 10; y++){
+            //     for (int x = 0; x < 10; x++){
+            //         if (computer_field.field[y][x]){
+            //             int[] pos = {x, y};
+            //             computer_field.marks.add(pos);
+            //         }
+            //     }
+            // }
+            // computer_field.marks.remove(0);
+            // computer_field.ships_sunk = 5;
+            // computer_field.print();
 
-        // GAME
-        boolean game = true;
-        while (game){
-            // player shot
-            System.out.println("\nComputer's grid :\n");
-            computer_field.print_marks();
+            Field player_field = player_field();
 
-            int[] shot = {};
-
-            boolean valid = false;
-            while (!valid){
-                System.out.print("\nTake a shot : ");
-                String position = scanner.nextLine();
-                try{
-                    shot = convert_position(position);
-                    valid = true;
-                }
-                catch(IllegalArgumentException e){
-                    System.out.println("\nInvalid position, try again.");
-                }
-            }
-
+            System.out.print(GREEN + "All boats placed." + RESET + " Press ENTER to start playing.");
+            scanner.nextLine();
             clear_console();
-            System.out.println("\nComputer's grid :\n");
-            computer_field.marks.add(shot);
-            computer_field.print_marks();
 
-            if (computer_field.field[shot[1]][shot[0]]){
-                System.out.println("\nThat's a hit !\n");
-            }
-            else{
-                System.out.println("\nYou missed, maybe next time.\n");
-            }
+            // GAME
+            boolean game = true;
+            while (game){
+                // player shot
+                System.out.println("\nComputer's grid :\n");
+                computer_field.print_marks();
 
-            for (Ship ship : computer_ships){
-                for (int[] pos : ship.ship_coordinates){
-                    if (shot[0] == pos[0] && shot[1] == pos[1]){
-                        ship.safe_coordinates.remove(pos);
-                        if (ship.safe_coordinates.size() == 0){
-                            System.out.println("You sank the computer's " + ship.name + "!\n");
-                            sleep(1000);
-                            ship.sunk = true;
+                int[] shot = {};
+
+                boolean valid = false;
+                while (!valid){
+                    System.out.print("\nTake a shot : ");
+                    String position = scanner.nextLine();
+                    try{
+                        shot = convert_position(position);
+                        valid = true;
+                    }
+                    catch(IllegalArgumentException e){
+                        System.out.println("\nInvalid position, try again.");
+                    }
+                }
+
+                clear_console();
+                System.out.println("\nComputer's grid :\n");
+                computer_field.marks.add(shot);
+                computer_field.print_marks();
+
+                if (computer_field.field[shot[1]][shot[0]]){
+                    System.out.println("\nThat's a hit !\n");
+                }
+                else{
+                    System.out.println("\nYou missed, maybe next time.\n");
+                }
+
+                for (Ship ship : computer_ships){
+                    for (int[] pos : ship.ship_coordinates){
+                        if (shot[0] == pos[0] && shot[1] == pos[1]){
+                            ship.safe_coordinates.remove(pos);
+                            if (ship.safe_coordinates.size() == 0){
+                                System.out.println("You sank the computer's " + ship.name + "!\n");
+                                ship.sunk = true;
+                                computer_field.ships_sunk++;
+                            }
                         }
                     }
                 }
-            }
 
-            System.out.print("Press ENTER to continue.");
-            scanner.nextLine();
-            clear_console();
-            
-            // computer shot
-            int[] computer_shot = {-1, -1};
-            boolean shot_in_marks = true;
-            System.out.print("\nComputer is taking a shot ...");
-            sleep(1000);
-            clear_console();
-            do{
-                computer_shot[0] = (int) (Math.random() * grid_size);
-                computer_shot[1] = (int) (Math.random() * grid_size);
-                shot_in_marks = false;
-                for (int[] mark : player_field.marks){
-                    if (mark[0] == computer_shot[0] && mark[1] == computer_shot[1]){
-                        shot_in_marks = true;
+                if (computer_field.ships_sunk == num_ships){
+                    game = false;
+                    System.out.println(GREEN + "You won !\n" + RESET);
+                    sleep(3000);
+                    System.out.print("Do you want to play again ? (y/n) : ");
+                    String answer = "";
+                    while (!answer.equals("y") && !answer.equals("n")){
+                        answer = scanner.nextLine();
                     }
+                    if (answer.equals("n")){
+                        run = false;
+                    }
+                    clear_console();
+                    break;
                 }
-            }
-            while (shot_in_marks);
 
-            System.out.println("\nYour grid :\n");
-            player_field.marks.add(computer_shot);
-            player_field.print();
-
-            if (player_field.field[computer_shot[1]][computer_shot[0]]){
-                System.out.println("\nYou have been hit !\n");
-            }
-            else{
-                System.out.println("\nMiss, you are safe for now.\n");
-            }
-
-            for (Ship ship : player_ships){
-                for (int[] pos : ship.ship_coordinates){
-                    if (computer_shot[0] == pos[0] && computer_shot[1] == pos[1]){
-                        ship.safe_coordinates.remove(pos);
-                        if (ship.safe_coordinates.size() == 0){
-                            System.out.println("Your " + ship.name + " has been sunk.\n");
-                            sleep(1000);
-                            ship.sunk = true;
+                System.out.print("Press ENTER to continue.");
+                scanner.nextLine();
+                clear_console();
+                
+                // computer shot
+                int[] computer_shot = {-1, -1};
+                boolean shot_in_marks = true;
+                System.out.print("\nComputer is taking a shot ...");
+                sleep(1000);
+                clear_console();
+                while (shot_in_marks){
+                    computer_shot[0] = (int) (Math.random() * grid_size);
+                    computer_shot[1] = (int) (Math.random() * grid_size);
+                    shot_in_marks = false;
+                    for (int[] mark : player_field.marks){
+                        if (mark[0] == computer_shot[0] && mark[1] == computer_shot[1]){
+                            shot_in_marks = true;
                         }
                     }
                 }
+
+                System.out.println("\nYour grid :\n");
+                player_field.marks.add(computer_shot);
+                player_field.print();
+
+                if (player_field.field[computer_shot[1]][computer_shot[0]]){
+                    System.out.println("\nYou have been hit !\n");
+                }
+                else{
+                    System.out.println("\nMiss, you are safe for now.\n");
+                }
+
+                for (Ship ship : player_ships){
+                    for (int[] pos : ship.ship_coordinates){
+                        if (computer_shot[0] == pos[0] && computer_shot[1] == pos[1]){
+                            ship.safe_coordinates.remove(pos);
+                            if (ship.safe_coordinates.size() == 0){
+                                System.out.println("Your " + ship.name + " has been sunk.\n");
+                                ship.sunk = true;
+                                player_field.ships_sunk++;
+                            }
+                        }
+                    }
+                }
+
+                if (player_field.ships_sunk == num_ships){
+                    game = false;
+                    System.out.println(RED + "You lost !\n" + RESET);
+                    sleep(3000);
+                    System.out.print("Do you want to play again ? (y/n) : ");
+                    String answer = "";
+                    while (answer.equals("y") && answer.equals("n")){
+                        answer = scanner.nextLine();
+                    }
+                    if (answer.equals("n")){
+                        run = false;
+                    }
+                    clear_console();
+                    break;
+                }
+
+                System.out.print("Press ENTER to continue.");
+                scanner.nextLine();
+                clear_console();
             }
-            System.out.print("Press ENTER to continue.");
-            scanner.nextLine();
-            clear_console();
         }
         scanner.close();
     }

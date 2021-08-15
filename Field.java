@@ -3,6 +3,7 @@ import java.util.*;
 public class Field {
     public boolean[][] field;
     public LinkedList<int[]> marks = new LinkedList<>();
+    public int ships_sunk = 0;
     
     // colors
     public static String RESET = "\u001B[0m";
