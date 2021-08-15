@@ -3,6 +3,7 @@ import java.util.*;
 public class Field {
     public boolean[][] field;
     public LinkedList<int[]> marks = new LinkedList<>();
+    
     // colors
     public static String RESET = "\u001B[0m";
     public static String RED = "\u001B[31m";
@@ -15,16 +16,16 @@ public class Field {
 
     public void print(){
         // letters
-        System.out.print("   ");
+        System.out.print("    ");
         for (int x = 0; x < field.length; x++){
             System.out.print(" " + "ABCDEFGHIJ".charAt(x) + " ");
         }
         System.out.println();
 
         // top line
-        System.out.print("   ");
+        System.out.print("    ");
         for (int x = 0; x < field.length; x++){
-            System.out.print(" --");
+            System.out.print("---");
         }
         System.out.println();
 
@@ -42,55 +43,51 @@ public class Field {
                     boolean printed = false;
                     for (int[] mark : marks){
                         if (mark[0] == x && mark[1] == y){
-                            System.out.print(RED + "██" + RESET);
+                            System.out.print(RED + "███" + RESET);
                             printed = true;
                             break;
                         }
                     }
                     if (!printed){
-                        System.out.print("██");
+                        System.out.print("███");
                     }
                 }
                 else{
                     boolean printed = false;
                     for (int[] mark : marks){
                         if (mark[0] == x && mark[1] == y){
-                            System.out.print(BLUE + "██" + RESET);
+                            System.out.print(BLUE + "███" + RESET);
                             printed = true;
                             break;
                         }
                     }
                     if (!printed){
-                        System.out.print("  ");
+                        System.out.print("   ");
                     }
-                }
-                
-                if (x != field.length - 1){
-                    System.out.print(" ");
                 }
             }
             System.out.println("|");
         }
 
         // bottom line
-        System.out.print("   ");
+        System.out.print("    ");
         for (int x = 0; x < field.length; x++)
-            System.out.print(" --");
+            System.out.print("---");
         System.out.println();
     }
 
     public void print_marks(){
         // letters
-        System.out.print("   ");
+        System.out.print("    ");
         for (int x = 0; x < this.field.length; x++){
             System.out.print(" " + "ABCDEFGHIJ".charAt(x) + " ");
         }
         System.out.println();
 
         // top line
-        System.out.print("   ");
+        System.out.print("    ");
         for (int x = 0; x < this.field.length; x++){
-            System.out.print(" --");
+            System.out.print("---");
         }
         System.out.println();
 
@@ -113,27 +110,23 @@ public class Field {
 
                 if (marked){
                     if (field[y][x]){
-                        System.out.print(RED + "██" + RESET);
+                        System.out.print(RED + "███" + RESET);
                     }
                     else{
-                        System.out.print("██");
+                        System.out.print("███");
                     }
                 }
                 else{
-                    System.out.print("  ");
-                }
-
-                if (x != field.length - 1){
-                    System.out.print(" ");
+                    System.out.print("   ");
                 }
             }
             System.out.println("|");
         }
 
         // bottom line
-        System.out.print("   ");
+        System.out.print("    ");
         for (int x = 0; x < field.length; x++)
-            System.out.print(" --");
+            System.out.print("---");
         System.out.println();
     }
 }

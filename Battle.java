@@ -3,6 +3,12 @@ import java.util.*;
 public class Battle {
     public static Scanner scanner = new Scanner(System.in);
 
+    // colors
+    public static String RESET = "\u001B[0m";
+    public static String RED = "\u001B[31m";
+    public static String GREEN = "\u001B[32m";
+    public static String BLUE = "\u001B[34m";
+
     // constants
     public static int[] ship_lengths = {2, 3, 3, 4, 5};
     public static String[] ship_names = {"Patrol Boat", "Submarine", "Destroyer", "Battleship", "Carrier"};
@@ -112,13 +118,14 @@ public class Battle {
                 player_grid[j][i] = false;
             }
         }
+        clear_console();
+        System.out.println();
+        Field player_field = new Field(player_grid);
+        player_field.print();
+        System.out.println();
         
-
         for (int s = 0; s < num_ships; s++){
-            System.out.println();
-            new Field(player_grid).print();
-
-            System.out.println("\n" + ship_names[s] + " (length = " + ship_lengths[s] + ") : ");
+            System.out.println(ship_names[s] + " (length = " + ship_lengths[s] + ") :\n");
 
             int x = -1;
             int y = -1;
@@ -126,24 +133,26 @@ public class Battle {
 
             boolean ship_done = false;
             while (!ship_done){
+
                 // get orientation
                 orientation = -1;
                 while (true){
-                    System.out.print("Orientation (x -> 0 / y -> 1) : ");
+                    System.out.print("Orientation (0 -> x / 1 -> y) : ");
                     try{
                         orientation = scanner.nextInt();
+                        if (orientation == 0 || orientation == 1){
+                            break;
+                        }
+                        else{
+                            System.out.println("\nInvalid input, try again.\n");
+                        }
                     }
                     catch (InputMismatchException e){
-                        System.out.println("Invalid input, try again.");
+                        System.out.println("\nInvalid input, try again.\n");
                         scanner.nextLine();
                     }
-                    if (orientation == 0 || orientation == 1){
-                        break;
-                    }
-                    else{
-                        System.out.println("Invalid input, try again.");
-                    }
                 }
+
                 // get position
                 String position = "";
                 scanner.nextLine();
@@ -151,14 +160,14 @@ public class Battle {
 
                 boolean valid = false;
                 while (!valid){
-                    System.out.print("Position (row letter - column number) ex.: A1 : ");
+                    System.out.print("Position (row letter - column number) ex. A1 : ");
                     position = scanner.nextLine();
                     try{
                         position_array = convert_position(position);
                         valid = true;
                     }
                     catch(IllegalArgumentException e){
-                        System.out.println("Invalid position, try again.");
+                        System.out.println("\nInvalid position, try again.\n");
                     }
                 }
                 x = position_array[0];
@@ -168,7 +177,7 @@ public class Battle {
                 if (orientation == 0){
                     if (x > grid_size - ship_lengths[s]){
                         ship_done = false;
-                        System.out.println("Too far right.");
+                        System.out.println("\nToo far right.\n");
                     }
                     else{
                         for (int i = x; i < x + ship_lengths[s]; i++){
@@ -183,7 +192,7 @@ public class Battle {
                                         }
                                     }
                                 }
-                                System.out.println("Overlapping " + ship_name + " in " + convert_position(coordinates));
+                                System.out.println("\nOverlapping " + ship_name + " in " + convert_position(coordinates) + "\n");
                             }
                         }
                     }
@@ -191,7 +200,7 @@ public class Battle {
                 else if (orientation == 1){
                     if (y > grid_size - ship_lengths[s]){
                         ship_done = false;
-                        System.out.println("Too low.");
+                        System.out.println("\nToo low.\n");
                     }
                     else{
                         for (int i = y; i < y + ship_lengths[s]; i++){
@@ -206,61 +215,71 @@ public class Battle {
                                         }
                                     }
                                 }
-                                System.out.println("Overlapping " + ship_name + " in " + convert_position(coordinates));
+                                System.out.println("\nOverlapping " + ship_name + " in " + convert_position(coordinates) + "\n");
                             }
                         }
                     }
                 }
             }
             player_ships[s] = new Ship(player_grid, ship_lengths[s], x, y, orientation, ship_names[s]);
+
+            clear_console();
+            System.out.println();
+            player_field.field = player_grid;
+            player_field.print();
+            System.out.println();
         }
         return new Field(player_grid);
     }
 
     public static void main(String[] args) {
-        clear_console();
-
         Field computer_field = computer_field();
-        computer_field.print();
-
         Field player_field = player_field();
-        player_field.print();
-        System.out.println();
 
-        System.out.println("\nAll boats placed. Let's start playing !");
-        sleep(2000);
+        System.out.print(GREEN + "All boats placed." + RESET + " Press ENTER to start playing.");
+        scanner.nextLine();
+        clear_console();
 
         // GAME
         boolean game = true;
         while (game){
             // player shot
-            System.out.println("\nComputer's grid : \n");
+            System.out.println("\nComputer's grid :\n");
             computer_field.print_marks();
 
             int[] shot = {};
 
             boolean valid = false;
             while (!valid){
-                System.out.print("Take a shot : ");
+                System.out.print("\nTake a shot : ");
                 String position = scanner.nextLine();
                 try{
                     shot = convert_position(position);
                     valid = true;
                 }
                 catch(IllegalArgumentException e){
-                    System.out.println("Invalid position, try again.");
+                    System.out.println("\nInvalid position, try again.");
                 }
             }
-            
+
+            clear_console();
+            System.out.println("\nComputer's grid :\n");
             computer_field.marks.add(shot);
             computer_field.print_marks();
+
+            if (computer_field.field[shot[1]][shot[0]]){
+                System.out.println("\nThat's a hit !\n");
+            }
+            else{
+                System.out.println("\nYou missed, maybe next time.\n");
+            }
 
             for (Ship ship : computer_ships){
                 for (int[] pos : ship.ship_coordinates){
                     if (shot[0] == pos[0] && shot[1] == pos[1]){
                         ship.safe_coordinates.remove(pos);
                         if (ship.safe_coordinates.size() == 0){
-                            System.out.println("You sank the computer's " + ship.name + "!");
+                            System.out.println("You sank the computer's " + ship.name + "!\n");
                             sleep(1000);
                             ship.sunk = true;
                         }
@@ -268,14 +287,16 @@ public class Battle {
                 }
             }
 
-            sleep(1000);
+            System.out.print("Press ENTER to continue.");
+            scanner.nextLine();
             clear_console();
             
             // computer shot
             int[] computer_shot = {-1, -1};
             boolean shot_in_marks = true;
-            System.out.println("Computer taking a shot ...\n");
+            System.out.print("\nComputer is taking a shot ...");
             sleep(1000);
+            clear_console();
             do{
                 computer_shot[0] = (int) (Math.random() * grid_size);
                 computer_shot[1] = (int) (Math.random() * grid_size);
@@ -288,23 +309,33 @@ public class Battle {
             }
             while (shot_in_marks);
 
+            System.out.println("\nYour grid :\n");
+            player_field.marks.add(computer_shot);
+            player_field.print();
+
+            if (player_field.field[computer_shot[1]][computer_shot[0]]){
+                System.out.println("\nYou have been hit !\n");
+            }
+            else{
+                System.out.println("\nMiss, you are safe for now.\n");
+            }
+
             for (Ship ship : player_ships){
                 for (int[] pos : ship.ship_coordinates){
                     if (computer_shot[0] == pos[0] && computer_shot[1] == pos[1]){
                         ship.safe_coordinates.remove(pos);
                         if (ship.safe_coordinates.size() == 0){
-                            System.out.println("Your " + ship.name + " has been sunk.");
+                            System.out.println("Your " + ship.name + " has been sunk.\n");
                             sleep(1000);
                             ship.sunk = true;
                         }
                     }
                 }
             }
-
-            player_field.marks.add(computer_shot);
-            player_field.print();
+            System.out.print("Press ENTER to continue.");
+            scanner.nextLine();
+            clear_console();
         }
-
         scanner.close();
     }
 }
