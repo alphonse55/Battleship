@@ -3,11 +3,6 @@ import java.util.*;
 public class Battle {
     public static Scanner scanner = new Scanner(System.in);
 
-    // colors
-    public static String RESET = "\u001B[0m";
-    public static String RED = "\u001B[31m";
-    public static String GREEN = "\u001B[32m";
-
     // constants
     public static int[] ship_lengths = {2, 3, 3, 4, 5};
     public static String[] ship_names = {"Patrol Boat", "Submarine", "Destroyer", "Battleship", "Carrier"};
@@ -29,7 +24,22 @@ public class Battle {
     }
 
     // "C3" -> [2, 2] 
-    public static int[] convert_position(String position){
+    public static int[] convert_position(String position) throws IllegalArgumentException{
+        boolean valid = false;
+        if (("ABCDEFGHIJ".indexOf(position.charAt(0)) > -1) && ("123456789".indexOf(position.charAt(1)) > -1)){
+            if (position.length() == 2){
+                valid = true;
+            }
+            else if (position.length() == 3){
+                if (("123456789".indexOf(position.charAt(1)) == 0) && (String.valueOf(position.charAt(2)).equals("0"))){
+                    valid = true;
+                }
+            }
+        }
+        if (!valid){
+            throw new IllegalArgumentException("Exception thrown");
+        }
+
         int x = "ABCDEFGHIJ".indexOf(position.charAt(0));
         int y = Integer.parseInt(String.valueOf(position.charAt(1))) - 1;
         if (position.length() == 3){
@@ -137,41 +147,23 @@ public class Battle {
                 // get position
                 String position = "";
                 scanner.nextLine();
-                while (true){
+                int[] position_array = {};
+
+                boolean valid = false;
+                while (!valid){
                     System.out.print("Position (row letter - column number) ex.: A1 : ");
+                    position = scanner.nextLine();
                     try{
-                        position = scanner.nextLine();
+                        position_array = convert_position(position);
+                        valid = true;
                     }
-                    catch (InputMismatchException e){
-                        System.out.println("Invalid input, try again.");
-                    }
-                    if (("ABCDEFGHIJ".indexOf(position.charAt(0)) > -1) && ("123456789".indexOf(position.charAt(1)) > -1)){
-                        if (position.length() == 2){
-                            break;
-                        }
-                        else if (position.length() == 3){
-                            if (("123456789".indexOf(position.charAt(1)) == 0) && (String.valueOf(position.charAt(2)).equals("0"))){
-                                break;
-                            }
-                            else{
-                                System.out.println("Invalid input, try again.");
-                                break;
-                            }
-                        }
-                        else{
-                            System.out.println("Invalid input, try again.");
-                            break;
-                        }
-                    }
-                    else{
-                        System.out.println("Invalid input, try again.");
+                    catch(IllegalArgumentException e){
+                        System.out.println("Invalid position, try again.");
                     }
                 }
-
-                int[] position_array = convert_position(position);
                 x = position_array[0];
                 y = position_array[1];
-                
+
                 ship_done = true;
                 if (orientation == 0){
                     if (x > grid_size - ship_lengths[s]){
@@ -226,10 +218,12 @@ public class Battle {
     }
 
     public static void main(String[] args) {
+        clear_console();
 
         Field computer_field = computer_field();
 
-        Field player_field = player_field();
+        Field player_field = computer_field();
+        // Field player_field = player_field();
         player_field.print();
         System.out.println();
 
@@ -239,14 +233,49 @@ public class Battle {
         // GAME
         boolean game = true;
         while (game){
+            // player shot
             System.out.println("\nComputer's grid : \n");
             computer_field.print_marks();
 
-            System.out.print("\nTake a shot : ");
-            String input = scanner.nextLine();
-            int[] shot = convert_position(input);
+            int[] shot = {};
 
+            boolean valid = false;
+            while (!valid){
+                System.out.print("Take a shot : ");
+                String position = scanner.nextLine();
+                try{
+                    shot = convert_position(position);
+                    valid = true;
+                }
+                catch(IllegalArgumentException e){
+                    System.out.println("Invalid position, try again.");
+                }
+            }
+            
             computer_field.marks.add(shot);
+            computer_field.print_marks();
+
+            sleep(1000);
+            clear_console();
+            
+            // computer shot
+            int[] computer_shot = {-1, -1};
+            boolean shot_in_marks = true;
+            System.out.println("Computer taking a shot ...\n");
+            sleep(1000);
+            do{
+                computer_shot[0] = (int) (Math.random() * grid_size);
+                computer_shot[1] = (int) (Math.random() * grid_size);
+                shot_in_marks = false;
+                for (int[] mark : player_field.marks){
+                    if (mark[0] == computer_shot[0] && mark[1] == computer_shot[1]){
+                        shot_in_marks = true;
+                    }
+                }
+            }
+            while (shot_in_marks);
+            player_field.marks.add(computer_shot);
+            player_field.print();
         }
 
         scanner.close();
