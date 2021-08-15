@@ -8,6 +8,8 @@ public class Battle {
     public static String[] ship_names = {"Patrol Boat", "Submarine", "Destroyer", "Battleship", "Carrier"};
     public static int num_ships = ship_lengths.length;
     public static int grid_size = 10;
+    public static Ship[] computer_ships = new Ship[num_ships];
+    public static Ship[] player_ships = new Ship[num_ships];
 
     public static void sleep(int milliseconds){
         try{
@@ -65,8 +67,6 @@ public class Battle {
             }
         }
 
-        Ship[] ships = new Ship[num_ships];
-
         for (int s = 0; s < num_ships; s++){
             int x = -1;
             int y = -1;
@@ -99,7 +99,7 @@ public class Battle {
                 }
             }
 
-            ships[s] = new Ship(computer_grid, ship_lengths[s], x, y, orientation, ship_names[s]);
+            computer_ships[s] = new Ship(computer_grid, ship_lengths[s], x, y, orientation, ship_names[s]);
         }
         return new Field(computer_grid);
     }
@@ -112,7 +112,7 @@ public class Battle {
                 player_grid[j][i] = false;
             }
         }
-        Ship[] ships = new Ship[num_ships];
+        
 
         for (int s = 0; s < num_ships; s++){
             System.out.println();
@@ -177,9 +177,9 @@ public class Battle {
                                 ship_done = false;
                                 int[] coordinates = {i, y};
                                 for (int ship = 0; ship < s; ship++){
-                                    for (int n_coord = 0; n_coord < ships[ship].length; n_coord++){
-                                        if (ships[ship].ship_coordinates[n_coord][0] == coordinates[0] && ships[ship].ship_coordinates[n_coord][1] == coordinates[1]){
-                                            ship_name = ships[ship].name;
+                                    for (int n_coord = 0; n_coord < player_ships[ship].length; n_coord++){
+                                        if (player_ships[ship].ship_coordinates[n_coord][0] == coordinates[0] && player_ships[ship].ship_coordinates[n_coord][1] == coordinates[1]){
+                                            ship_name = player_ships[ship].name;
                                         }
                                     }
                                 }
@@ -200,9 +200,9 @@ public class Battle {
                                 ship_done = false;
                                 int[] coordinates = {x, i};
                                 for (int ship = 0; ship < s; ship++){
-                                    for (int n_coord = 0; n_coord < ships[ship].length; n_coord++){
-                                        if (ships[ship].ship_coordinates[n_coord][0] == coordinates[0] && ships[ship].ship_coordinates[n_coord][1] == coordinates[1]){
-                                            ship_name = ships[ship].name;
+                                    for (int n_coord = 0; n_coord < player_ships[ship].length; n_coord++){
+                                        if (player_ships[ship].ship_coordinates[n_coord][0] == coordinates[0] && player_ships[ship].ship_coordinates[n_coord][1] == coordinates[1]){
+                                            ship_name = player_ships[ship].name;
                                         }
                                     }
                                 }
@@ -212,7 +212,7 @@ public class Battle {
                     }
                 }
             }
-            ships[s] = new Ship(player_grid, ship_lengths[s], x, y, orientation, ship_names[s]);
+            player_ships[s] = new Ship(player_grid, ship_lengths[s], x, y, orientation, ship_names[s]);
         }
         return new Field(player_grid);
     }
@@ -221,9 +221,9 @@ public class Battle {
         clear_console();
 
         Field computer_field = computer_field();
+        computer_field.print();
 
-        Field player_field = computer_field();
-        // Field player_field = player_field();
+        Field player_field = player_field();
         player_field.print();
         System.out.println();
 
@@ -255,6 +255,19 @@ public class Battle {
             computer_field.marks.add(shot);
             computer_field.print_marks();
 
+            for (Ship ship : computer_ships){
+                for (int[] pos : ship.ship_coordinates){
+                    if (shot[0] == pos[0] && shot[1] == pos[1]){
+                        ship.safe_coordinates.remove(pos);
+                        if (ship.safe_coordinates.size() == 0){
+                            System.out.println("You sank the computer's " + ship.name + "!");
+                            sleep(1000);
+                            ship.sunk = true;
+                        }
+                    }
+                }
+            }
+
             sleep(1000);
             clear_console();
             
@@ -274,6 +287,20 @@ public class Battle {
                 }
             }
             while (shot_in_marks);
+
+            for (Ship ship : player_ships){
+                for (int[] pos : ship.ship_coordinates){
+                    if (computer_shot[0] == pos[0] && computer_shot[1] == pos[1]){
+                        ship.safe_coordinates.remove(pos);
+                        if (ship.safe_coordinates.size() == 0){
+                            System.out.println("Your " + ship.name + " has been sunk.");
+                            sleep(1000);
+                            ship.sunk = true;
+                        }
+                    }
+                }
+            }
+
             player_field.marks.add(computer_shot);
             player_field.print();
         }

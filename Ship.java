@@ -1,11 +1,14 @@
-public class Ship {
+import java.util.*;
 
+public class Ship {
     int x;
     int y;
     int orientation;
     int length;
     String name;
     int[][] ship_coordinates;
+    LinkedList<int[]> safe_coordinates = new LinkedList<>();
+    boolean sunk = false;
 
     public Ship(boolean[][] mat, int length, int x, int y, int orientation, String name){
         this.x = x;
@@ -29,6 +32,10 @@ public class Ship {
                 int[] coordinates = {x, i};
                 ship_coordinates[i - y] = coordinates;
             }
+        }
+
+        for (int i = 0; i < ship_coordinates.length; i++){
+            safe_coordinates.add(ship_coordinates[i]);
         }
     }
 }
