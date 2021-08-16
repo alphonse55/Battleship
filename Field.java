@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Field {
     public boolean[][] field;
-    public LinkedList<int[]> marks = new LinkedList<>();
+    public boolean[][] marks;
     public int ships_sunk = 0;
     
     // colors
@@ -13,6 +13,12 @@ public class Field {
 
     public Field(boolean[][] field){
         this.field = field;
+        marks = new boolean[10][10];
+        for (int y = 0; y < 10; y++){
+            for (int x = 0; x < 10; x++){
+                marks[y][x] = false;
+            }
+        }
     }
 
     public void print(){
@@ -40,29 +46,19 @@ public class Field {
 
             // boats
             for(int x = 0; x < field.length; x++){
-                if (field[y][x]){
-                    boolean printed = false;
-                    for (int[] mark : marks){
-                        if (mark[0] == x && mark[1] == y){
-                            System.out.print(RED + "███" + RESET);
-                            printed = true;
-                            break;
-                        }
+                if (marks[y][x]){
+                    if (field[y][x]){
+                        System.out.print(RED + "███" + RESET);
                     }
-                    if (!printed){
-                        System.out.print("███");
+                    else{
+                        System.out.print(BLUE + "███" + RESET);
                     }
                 }
                 else{
-                    boolean printed = false;
-                    for (int[] mark : marks){
-                        if (mark[0] == x && mark[1] == y){
-                            System.out.print(BLUE + "███" + RESET);
-                            printed = true;
-                            break;
-                        }
+                    if (field[y][x]){
+                        System.out.print("███");
                     }
-                    if (!printed){
+                    else{
                         System.out.print("   ");
                     }
                 }
@@ -80,14 +76,14 @@ public class Field {
     public void print_marks(){
         // letters
         System.out.print("    ");
-        for (int x = 0; x < this.field.length; x++){
+        for (int x = 0; x < field.length; x++){
             System.out.print(" " + "ABCDEFGHIJ".charAt(x) + " ");
         }
         System.out.println();
 
         // top line
         System.out.print("    ");
-        for (int x = 0; x < this.field.length; x++){
+        for (int x = 0; x < field.length; x++){
             System.out.print("---");
         }
         System.out.println();
@@ -102,19 +98,12 @@ public class Field {
 
             // boats
             for(int x = 0; x < field.length; x++){
-                boolean marked = false;
-                for (int[] mark : marks){
-                    if (x == mark[0] && y == mark[1]){
-                        marked = true;
-                    }
-                }
-
-                if (marked){
+                if (marks[y][x]){
                     if (field[y][x]){
                         System.out.print(RED + "███" + RESET);
                     }
                     else{
-                        System.out.print("███");
+                        System.out.print(BLUE + "███" + RESET);
                     }
                 }
                 else{

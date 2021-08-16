@@ -13,7 +13,6 @@ public class Battle {
     public static int[] ship_lengths = {2, 3, 3, 4, 5};
     public static String[] ship_names = {"Patrol Boat", "Submarine", "Destroyer", "Battleship", "Carrier"};
     public static int num_ships = ship_lengths.length;
-    public static int grid_size = 10;
     public static Ship[] computer_ships = new Ship[num_ships];
     public static Ship[] player_ships = new Ship[num_ships];
 
@@ -70,10 +69,10 @@ public class Battle {
 
     // generate computer field
     public static Field computer_field(){
-        boolean[][] computer_grid = new boolean[grid_size][grid_size];
-        for (int j = 0; j < grid_size; j++){
-            for (int i = 0; i < grid_size; i++){
-                computer_grid[j][i] = false;
+        boolean[][] computer_grid = new boolean[10][10];
+        for (int y = 0; y < 10; y++){
+            for (int x = 0; x < 10; x++){
+                computer_grid[y][x] = false;
             }
         }
 
@@ -86,8 +85,8 @@ public class Battle {
             while (!ship_done){
                 orientation = (int) (Math.random() + 0.5); // 0 or 1; 0 -> x, 1 -> y
                 if (orientation == 0){
-                    x = (int) (Math.random() * (grid_size - ship_lengths[s]));
-                    y = (int) (Math.random() * (grid_size));
+                    x = (int) (Math.random() * (10 - ship_lengths[s]));
+                    y = (int) (Math.random() * (10));
                     
                     ship_done = true;
                     for (int i = x; i < x + ship_lengths[s]; i++){
@@ -97,8 +96,8 @@ public class Battle {
                     }
                 }
                 else if (orientation == 1){
-                    x = (int) (Math.random() * (grid_size));
-                    y = (int) (Math.random() * (grid_size - ship_lengths[s]));
+                    x = (int) (Math.random() * (10));
+                    y = (int) (Math.random() * (10 - ship_lengths[s]));
 
                     ship_done = true;
                     for (int i = y; i < y + ship_lengths[s]; i++){
@@ -116,9 +115,9 @@ public class Battle {
 
     // generate player field
     public static Field player_field(){
-        boolean[][] player_grid = new boolean[grid_size][grid_size];
-        for (int j = 0; j < grid_size; j++){
-            for (int i = 0; i < grid_size; i++){
+        boolean[][] player_grid = new boolean[10][10];
+        for (int j = 0; j < 10; j++){
+            for (int i = 0; i < 10; i++){
                 player_grid[j][i] = false;
             }
         }
@@ -164,7 +163,7 @@ public class Battle {
 
                 boolean valid = false;
                 while (!valid){
-                    System.out.print("Position (row letter - column number) ex. A1 : ");
+                    System.out.print("Position (column letter - row number) ex. A1 : ");
                     position = scanner.nextLine();
                     try{
                         position_array = convert_position(position);
@@ -179,7 +178,7 @@ public class Battle {
 
                 ship_done = true;
                 if (orientation == 0){
-                    if (x > grid_size - ship_lengths[s]){
+                    if (x > 10 - ship_lengths[s]){
                         ship_done = false;
                         System.out.println("\nToo far right.\n");
                     }
@@ -202,7 +201,7 @@ public class Battle {
                     }
                 }
                 else if (orientation == 1){
-                    if (y > grid_size - ship_lengths[s]){
+                    if (y > 10 - ship_lengths[s]){
                         ship_done = false;
                         System.out.println("\nToo low.\n");
                     }
@@ -241,19 +240,6 @@ public class Battle {
         while (run){
             // initializing fields
             Field computer_field = computer_field();
-
-            // for (int y = 0; y < 10; y++){
-            //     for (int x = 0; x < 10; x++){
-            //         if (computer_field.field[y][x]){
-            //             int[] pos = {x, y};
-            //             computer_field.marks.add(pos);
-            //         }
-            //     }
-            // }
-            // computer_field.marks.remove(0);
-            // computer_field.ships_sunk = 5;
-            // computer_field.print();
-
             Field player_field = player_field();
 
             System.out.print(GREEN + "All boats placed." + RESET + " Press ENTER to start playing.");
@@ -284,7 +270,7 @@ public class Battle {
 
                 clear_console();
                 System.out.println("\nComputer's grid :\n");
-                computer_field.marks.add(shot);
+                computer_field.marks[shot[1]][shot[0]] = true;
                 computer_field.print_marks();
 
                 if (computer_field.field[shot[1]][shot[0]]){
@@ -329,30 +315,24 @@ public class Battle {
                 
                 // computer shot
                 int[] computer_shot = {-1, -1};
-                boolean shot_in_marks = true;
                 System.out.print("\nComputer is taking a shot ...");
                 sleep(1000);
                 clear_console();
-                while (shot_in_marks){
-                    computer_shot[0] = (int) (Math.random() * grid_size);
-                    computer_shot[1] = (int) (Math.random() * grid_size);
-                    shot_in_marks = false;
-                    for (int[] mark : player_field.marks){
-                        if (mark[0] == computer_shot[0] && mark[1] == computer_shot[1]){
-                            shot_in_marks = true;
-                        }
-                    }
+                do {
+                    computer_shot[0] = (int) (Math.random() * 10);
+                    computer_shot[1] = (int) (Math.random() * 10);
                 }
+                while (player_field.marks[computer_shot[1]][computer_shot[0]]);
 
                 System.out.println("\nYour grid :\n");
-                player_field.marks.add(computer_shot);
+                player_field.marks[computer_shot[1]][computer_shot[0]] = true;;
                 player_field.print();
 
                 if (player_field.field[computer_shot[1]][computer_shot[0]]){
-                    System.out.println("\nYou have been hit !\n");
+                    System.out.println("\nYou have been hit at " + convert_position(computer_shot) + "!\n");
                 }
                 else{
-                    System.out.println("\nMiss, you are safe for now.\n");
+                    System.out.println("\nComputer missed at " + convert_position(computer_shot) + ", you are safe for now.\n");
                 }
 
                 for (Ship ship : player_ships){
