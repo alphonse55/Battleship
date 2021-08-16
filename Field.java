@@ -21,7 +21,7 @@ public class Field {
         }
     }
 
-    public void print(){
+    public void print(boolean print_boats){
         // letters
         System.out.print("    ");
         for (int x = 0; x < field.length; x++){
@@ -55,59 +55,12 @@ public class Field {
                     }
                 }
                 else{
-                    if (field[y][x]){
+                    if (field[y][x] && print_boats){
                         System.out.print("███");
                     }
                     else{
                         System.out.print("   ");
                     }
-                }
-            }
-            System.out.println("|");
-        }
-
-        // bottom line
-        System.out.print("    ");
-        for (int x = 0; x < field.length; x++)
-            System.out.print("---");
-        System.out.println();
-    }
-
-    public void print_marks(){
-        // letters
-        System.out.print("    ");
-        for (int x = 0; x < field.length; x++){
-            System.out.print(" " + "ABCDEFGHIJ".charAt(x) + " ");
-        }
-        System.out.println();
-
-        // top line
-        System.out.print("    ");
-        for (int x = 0; x < field.length; x++){
-            System.out.print("---");
-        }
-        System.out.println();
-
-        // grid
-        for (int y = 0; y < field.length; y++){
-            // numbers
-            if (y < 9){
-                System.out.print(" ");
-            }
-            System.out.print((y + 1) + " |");
-
-            // boats
-            for(int x = 0; x < field.length; x++){
-                if (marks[y][x]){
-                    if (field[y][x]){
-                        System.out.print(RED + "███" + RESET);
-                    }
-                    else{
-                        System.out.print(BLUE + "███" + RESET);
-                    }
-                }
-                else{
-                    System.out.print("   ");
                 }
             }
             System.out.println("|");

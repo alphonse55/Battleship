@@ -124,7 +124,7 @@ public class Battle {
         clear_console();
         System.out.println();
         Field player_field = new Field(player_grid);
-        player_field.print();
+        player_field.print(true);
         System.out.println();
         
         for (int s = 0; s < num_ships; s++){
@@ -229,7 +229,7 @@ public class Battle {
             clear_console();
             System.out.println();
             player_field.field = player_grid;
-            player_field.print();
+            player_field.print(true);
             System.out.println();
         }
         return new Field(player_grid);
@@ -251,7 +251,7 @@ public class Battle {
             while (game){
                 // player shot
                 System.out.println("\nComputer's grid :\n");
-                computer_field.print_marks();
+                computer_field.print(false);
 
                 int[] shot = {};
 
@@ -271,7 +271,7 @@ public class Battle {
                 clear_console();
                 System.out.println("\nComputer's grid :\n");
                 computer_field.marks[shot[1]][shot[0]] = true;
-                computer_field.print_marks();
+                computer_field.print(false);
 
                 if (computer_field.field[shot[1]][shot[0]]){
                     System.out.println("\nThat's a hit !\n");
@@ -326,7 +326,7 @@ public class Battle {
 
                 System.out.println("\nYour grid :\n");
                 player_field.marks[computer_shot[1]][computer_shot[0]] = true;;
-                player_field.print();
+                player_field.print(true);
 
                 if (player_field.field[computer_shot[1]][computer_shot[0]]){
                     System.out.println("\nYou have been hit at " + convert_position(computer_shot) + "!\n");
